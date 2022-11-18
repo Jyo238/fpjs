@@ -21,14 +21,22 @@ model = {
 ```
 
 ## View Functions
-
 view
-  formView
+  forview
     fieldSet
-    buttonSet
+    buttionSet
   tableView
     tableHeader
     mealsBody
       mealRow
         cell
-      totalRow 
+      totalRow
+
+# Update / Interactions
+
+click add meal
+meal input
+calorie input
+click save(add/update)
+click edit icon
+click delete icon
