@@ -4,7 +4,9 @@ const MSGS = {
     SHOW_FORM: 'SHOW_FORM',
     MEAL_INPUT: 'MEAL_INPUT',
     CALORIES_INPUT: 'CALORIES_INPUT',
-    SAVE_MEAL: "SAVE_MEAL"
+    SAVE_MEAL: "SAVE_MEAL",
+    DELETE_MEAL: "DELETE_MEAL",
+    EDIT_MEAL: "EDIT_MEAL"
 };
 
 export function showFormMsg(showForm) {
@@ -33,6 +35,20 @@ export const saveMealMsg = {
     type: MSGS.SAVE_MEAL,
 }
 
+export function deleteMealMsg(id) {
+    return {
+        type: MSGS.DELETE_MEAL,
+        id
+    }
+}
+
+export function editMealMsg(editId) {
+    return {
+        type: MSGS.EDIT_MEAL,
+        editId
+    }
+}
+
 
 function update(msg, model) {
     switch (msg.type) {
@@ -57,7 +73,28 @@ function update(msg, model) {
                 calories
             };
         case MSGS.SAVE_MEAL:
-            return add(msg, model);
+            console.log(editId)
+            const { editId } = model;
+            const updatedModel = editId !== null ? edit(msg, model) : add(msg, model);
+            return updatedModel;
+        case MSGS.DELETE_MEAL:
+            const { id } = msg;
+            const meals = R.filter(meals => meals.id !== id, model.meals);
+            return { ...model, meals };
+        case MSGS.EDIT_MEAL: {
+            
+            const { editId } = msg;
+            const meal = R.find(meal => meal.id === editId, model.meals);
+            const { description, calories } = meal;
+
+            return {
+                ...model,
+                description,
+                calories,
+                editId,
+                showForm: true
+            }
+        }
     }
     return model;
 }
@@ -65,7 +102,7 @@ function update(msg, model) {
 function add(msg, model) {
     const { nextId, description, calories } = model;
     const meal = { id: nextId, description, calories };
-    const meals = [...model.meal, meal];
+    const meals = [...model.meals, meal];
     return {
         ...model,
         meals,
@@ -74,6 +111,24 @@ function add(msg, model) {
         calories: 0,
         showForm: false
     };
+}
+
+function edit(msg, model) {
+    const { description, calories, editId } = model;
+    const meals = R.map(meal => {
+        if (meal.id === editId) {
+            return { ...meal, description, calories };
+        }
+        return meal
+    }, model.meals)
+    return {
+        ...model,
+        meals,
+        description: '',
+        calories: 0,
+        showForm:false,
+        editId:null
+    }
 }
 
 export default update;
